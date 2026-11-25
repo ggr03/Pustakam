@@ -23,7 +23,7 @@ param(
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$Version    = '1.0'
+$Version    = '1.1'
 $Port       = 5150
 $TaskName   = 'Pustakam'
 $BackupTask = 'Pustakam Backup'

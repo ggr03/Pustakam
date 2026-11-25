@@ -15,7 +15,7 @@
 set -euo pipefail
 
 APP="pustakam"
-PK_VERSION="1.0"
+PK_VERSION="1.1"
 PORT=5150
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSTALL_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/pustakam"

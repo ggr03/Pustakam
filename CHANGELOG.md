@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [1.1] - 2026-11-25
+
 ### Added
 - **Find & replace in the editor** (`Ctrl+F` / `Ctrl+H`): live highlighting of every match, a *2 of 5* counter,
   next/previous (`Enter`, `Shift+Enter`, `F3`), match case, whole word and regular expressions (with `$1` groups),
@@ -92,5 +96,6 @@ First public release. Pustakam is the successor of *NoteVault*: renamed, rebuilt
 - The sign-in page no longer shows the OS username to other devices on the network.
 - Tokens, config, sessions and secret key are stored with `chmod 600` on Linux.
 
-[Unreleased]: https://github.com/ggr03/Pustakam/compare/v-1.0...main
+[Unreleased]: https://github.com/ggr03/Pustakam/compare/v-1.1...main
+[1.1]: https://github.com/ggr03/Pustakam/compare/v-1.0...v-1.1
 [1.0]: https://github.com/ggr03/Pustakam/releases/tag/v-1.0
