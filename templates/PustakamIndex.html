@@ -1,0 +1,164 @@
+{% extends "PustakamBase.html" %}
+{% block title %}{{ app_name }} ({{ app_name_dev }}){% endblock %}
+{% block body_class %}page-app{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/atom-one-dark.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+{% endblock %}
+{% block body %}
+<!-- Title bar -->
+<header class="app-header">
+    <div class="ah-side ah-left">
+        <button class="icon-btn m-only" id="m-toggle-folders" title="Notebooks" aria-label="Show notebooks" aria-controls="sidebar">
+            <span aria-hidden="true">📚</span></button>
+        <button class="icon-btn m-only" id="m-toggle-notes" title="Notes list" aria-label="Show notes list" aria-controls="note-list-panel">
+            <span aria-hidden="true">☰</span></button>
+    </div>
+    <div class="app-title">
+        <img class="brand-logo" src="{{ url_for('static', filename='img/PustakamLogo.svg') }}" alt="">
+        <h1>{{ app_name }}</h1>
+        <span class="brand-dev">{{ app_name_dev }}</span>
+    </div>
+    <div class="ah-side ah-right">
+        <button class="icon-btn m-only" id="m-new-note" title="New note" aria-label="New note"><span aria-hidden="true">＋</span></button>
+    </div>
+</header>
+
+<div class="app-layout" id="app-layout">
+    <!-- Sidebar: notebooks + tags -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <span class="sidebar-title">Notebooks</span>
+            <button class="btn btn-sm btn-icon" id="new-folder-btn" title="New notebook" aria-label="New notebook">+</button>
+            <button class="collapse-btn d-only" id="sidebar-collapse" title="Collapse notebooks" aria-label="Collapse notebooks" aria-expanded="true">
+                <span class="chev" aria-hidden="true">‹</span></button>
+        </div>
+        <div class="sidebar-section sidebar-grow">
+            <ul class="folder-list" id="folder-list"></ul>
+            <div class="section-header tags-header"><span>Tags</span></div>
+            <div class="tag-cloud" id="tag-cloud"></div>
+        </div>
+    </aside>
+
+    <!-- Note list -->
+    <section class="note-list-panel" id="note-list-panel">
+        <div class="note-list-header">
+            <div class="note-list-title">
+                <span class="folder-icon folder-icon-lg" id="current-folder-icon"></span>
+                <h3 id="current-folder-name">All Notes</h3>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-sm" id="import-btn" title="Import .txt or .md files">📥 Import</button>
+                <button class="btn btn-primary btn-sm" id="new-note-btn" title="New note (Alt+N)">+ New</button>
+            </div>
+        </div>
+        <input type="file" id="import-file-input" multiple accept=".txt,.md,.markdown,text/plain,text/markdown" hidden>
+        <div class="note-list" id="note-list"></div>
+    </section>
+
+    <!-- Viewer / editor -->
+    <main class="editor-panel" id="editor-panel">
+        <div class="editor-placeholder" id="editor-placeholder">
+            <img src="{{ url_for('static', filename='img/PustakamLogo.svg') }}" alt="">
+            <p>Select a note, or create a new one</p>
+            <small>Alt+N new note &middot; E edit &middot; Ctrl+S save &middot; Esc back to reading</small>
+        </div>
+
+        <div class="note-shell" id="note-shell" hidden>
+            <div class="editor-header">
+                <input type="text" id="note-title" class="note-title-input" placeholder="Note title…" readonly>
+                <div class="editor-actions">
+                    <span class="save-state" id="save-state"></span>
+                    <select id="note-folder" class="note-folder-select" title="Notebook" disabled></select>
+                    <button class="btn btn-sm btn-primary" id="edit-btn" title="Edit (E)">✏️ Edit</button>
+                    <button class="btn btn-sm" id="view-btn" title="Back to reading view (Esc)" hidden>👁️ Read</button>
+                    <button class="btn btn-sm btn-primary" id="save-btn" title="Save (Ctrl+S)" hidden>💾 Save</button>
+                    <button class="btn btn-sm btn-ghost-danger" id="delete-btn" title="Delete note">🗑️</button>
+                </div>
+            </div>
+            <div class="editor-tags" id="editor-tags">
+                <div class="tag-chips" id="tag-chips"></div>
+                <input type="text" id="note-tags-input" placeholder="Tags, comma separated" hidden>
+            </div>
+            <div class="md-toolbar" id="md-toolbar" hidden>
+                <button data-md="bold" title="Bold"><b>B</b></button>
+                <button data-md="italic" title="Italic"><i>I</i></button>
+                <button data-md="h2" title="Heading">H</button>
+                <button data-md="ul" title="Bullet list">•</button>
+                <button data-md="task" title="Task list">☑</button>
+                <button data-md="code" title="Code block">&lt;/&gt;</button>
+                <button data-md="link" title="Link">🔗</button>
+                <button data-md="table" title="Table">▦</button>
+                <span class="tb-sep"></span>
+                <button data-md="math" title="Inline math  $…$">∑ math</button>
+                <button data-md="mathblock" title="Display math  $$…$$">∫ block</button>
+                <button data-md="chem" title="Chemical formula  $\ce{…}$">⚗ chem</button>
+                <button data-md="reaction" title="Chemical reaction">⇌ reaction</button>
+                <span class="tb-hint">Math: <code>$E=mc^2$</code> · Chemistry: <code>$\ce{H2SO4}$</code></span>
+            </div>
+            <div class="editor-body mode-view" id="editor-body">
+                <textarea id="note-content" class="editor-textarea" spellcheck="true"
+                          placeholder="Write in Markdown…  $\ce{2H2 + O2 -> 2H2O}$   $$\int_0^1 x^2\,dx$$"></textarea>
+                <div class="split-divider"></div>
+                <article id="note-preview" class="markdown-body"></article>
+            </div>
+        </div>
+    </main>
+    <div class="pane-backdrop" id="pane-backdrop" hidden></div>
+</div>
+
+<!-- Bottom bar -->
+<footer class="status-bar" id="status-bar">
+    <div class="sb-group sb-left">
+        <div class="search-box">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input type="search" id="search-input" placeholder="Search notes…" autocomplete="off" enterkeyhint="search" aria-label="Search notes">
+        </div>
+        <span class="user-chip" title="Signed in as {{ user }}">👤 <span class="user-name">{{ user }}</span></span>
+        <a href="/settings" class="btn btn-sm" title="Settings" aria-label="Settings">⚙️<span class="btn-label"> Settings</span></a>
+        <a href="/logout" class="btn btn-sm btn-danger" id="logout-btn" title="Log out" aria-label="Log out">⎋<span class="btn-label"> Logout</span></a>
+    </div>
+    <div class="sb-group sb-weather">
+        <div class="wx-strip" id="wx-strip"></div>
+        <div class="wx-search">
+            <span class="wx-search-icon" aria-hidden="true">🌍</span>
+            <input list="wx-city-list" id="wx-search" placeholder="Add city…" autocomplete="off" aria-label="Add a city for weather">
+            <datalist id="wx-city-list"></datalist>
+        </div>
+    </div>
+    <div class="sb-group sb-right">
+        <div class="sb-date" id="sb-date" title="Today (ISO 8601)">
+            <span class="sb-date-day" id="sb-date-day"></span>
+            <span class="sb-date-time" id="sb-date-time"></span>
+        </div>
+        <span class="sb-sep"></span>
+        <div class="sync-state" id="sync-state">
+            <span class="sync-dot" id="sync-dot"></span>
+            <span id="sync-status">Ready</span>
+        </div>
+        <button class="btn btn-sm btn-sync" id="sync-btn" title="Sync with OneDrive">
+            <span class="sync-ico">⟳</span><span class="btn-label"> Sync</span>
+        </button>
+        <span class="version-badge" title="Pustakam version">v{{ version }}</span>
+    </div>
+</footer>
+
+<div class="context-menu" id="context-menu" hidden></div>
+<div class="wx-popover" id="wx-popover" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script id="boot-data" type="application/json">{{ boot|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/PustakamCommon.js') }}?v={{ version }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamMarkdown.js') }}?v={{ version }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamFolderIcons.js') }}?v={{ version }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamWeather.js') }}?v={{ version }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamLayout.js') }}?v={{ version }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamNotes.js') }}?v={{ version }}"></script>
+{% endblock %}

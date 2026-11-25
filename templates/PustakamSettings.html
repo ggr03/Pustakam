@@ -1,0 +1,184 @@
+{% extends "PustakamBase.html" %}
+{% block title %}{{ app_name }} — Settings{% endblock %}
+{% block body_class %}page-settings{% endblock %}
+{% set p = cloud.onedrive %}
+{% block body %}
+<div class="settings-layout">
+    <header class="settings-header">
+        <a href="/" class="btn btn-sm">← Back to notes</a>
+        <img class="brand-logo" src="{{ url_for('static', filename='img/PustakamLogo.svg') }}" alt="">
+        <h1>Settings</h1>
+        <span class="version-badge">v{{ version }}</span>
+        <span class="spacer"></span>
+        <span class="muted">👤 {{ user }}</span>
+        <a href="/logout" class="btn btn-sm btn-danger">⎋ Logout</a>
+    </header>
+
+    <h2 class="settings-section-title">☁️ Sync &amp; 💾 Backup</h2>
+    <div class="settings-grid">
+        <!-- OneDrive -->
+        <section class="settings-card cloud-card" id="card-onedrive" data-provider="onedrive">
+            <div class="cloud-card-head">
+                <div class="cloud-logo"><svg viewBox="0 0 32 32" width="32" height="32"><path d="M13.5 10.5a7 7 0 0 1 12.6 2.6A5.5 5.5 0 0 1 25.5 24H9a6 6 0 0 1-1.3-11.86A7 7 0 0 1 13.5 10.5z" fill="#0364b8"/><path d="M13.5 10.5a7 7 0 0 1 12.6 2.6l-9.6 5.8-6.5-4.9a7 7 0 0 1 3.5-3.5z" fill="#0078d4"/><path d="M26.1 13.1A5.5 5.5 0 0 1 25.5 24H13l10.2-10.6a5.5 5.5 0 0 1 2.9-.3z" fill="#1490df"/><path d="M9 24a6 6 0 0 1-1.3-11.86l8.8 6.76L13 24z" fill="#28a8ea"/></svg></div>
+                <div>
+                    <h2>Microsoft OneDrive</h2>
+                    <div class="conn-pill" data-role="pill">…</div>
+                </div>
+                <label class="switch" title="Two-way sync on/off">
+                    <input type="checkbox" data-field="enabled" {{ 'checked' if p.enabled }}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="signin-info">
+                {% if p.rclone.found %}
+                <p>Two-way sync: notes you add or edit in the OneDrive folder appear here, and the other way round.
+                   Click <b>Sign in with Microsoft</b> and log in with your <b>outlook.com, hotmail.com, live.com or msn.com</b>
+                   account (work/school accounts work too). Microsoft's consent page will name the app <b>rclone</b>,
+                   the open-source sync tool Pustakam uses.</p>
+                <p class="muted small">rclone {{ p.rclone.version }} · {{ p.rclone.path }}</p>
+                {% else %}
+                <p class="bad">⚠ rclone is not installed, and Pustakam needs it for OneDrive. Re-run the Pustakam installer, which downloads it, or install it from
+                    <a href="https://rclone.org/install/" target="_blank" rel="noopener">rclone.org/install</a> and restart Pustakam.</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group folder-question">
+                <label>📂 Where should Pustakam keep your notebooks in OneDrive?</label>
+                <input type="text" data-field="remote_folder" value="{{ p.remote_folder }}" placeholder="e.g. Pustakam  or  Documents/Notes/Pustakam">
+                <small class="muted">A folder path from the top of your OneDrive. It is created if missing. Each notebook becomes a sub-folder, each note a .md file. Changing it later re-links everything.</small>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-sm" data-action="save">💾 Save</button>
+                <button class="btn btn-sm btn-primary" data-action="connect">{{ '🔄 Sign in again' if p.connected else '🔑 Sign in with Microsoft' }}</button>
+                <button class="btn btn-sm" data-action="test" {{ '' if p.connected else 'disabled' }}>🧪 Test</button>
+                <button class="btn btn-sm" data-action="sync" {{ '' if p.connected else 'disabled' }}>⟳ Sync now</button>
+                <button class="btn btn-sm btn-ghost-danger" data-action="disconnect" {{ '' if p.connected else 'disabled' }}>Disconnect</button>
+            </div>
+
+            <div class="paste-box" data-role="paste" hidden>
+                <p>A Microsoft sign-in tab opened. After you approve access, this page updates by itself.
+                   If that tab ends on <i>"This site can't be reached"</i> (you are using Pustakam from another device),
+                   copy that tab's full address and paste it here:</p>
+                <div class="input-copy">
+                    <input type="text" data-role="paste-url" placeholder="http://localhost:53682/?code=…">
+                    <button class="btn btn-sm btn-primary" data-action="complete">Finish</button>
+                </div>
+            </div>
+
+            <div class="status-msg" data-role="status"></div>
+            <ul class="check-list" data-role="checks"></ul>
+            <div class="last-sync" data-role="last-sync"></div>
+            <button class="link-btn" data-action="reset" {{ '' if p.connected else 'hidden' }}>Reset link (re-match notes by name on next sync)</button>
+        </section>
+
+        <!-- Local backup -->
+        <section class="settings-card">
+            <h2>💾 Local backup</h2>
+            <p class="settings-desc">A .zip of the database plus a Markdown copy of every note, made every day at 21:00.
+                Use any folder, e.g. on a second disk, a USB drive or a NAS mount.</p>
+            <div class="form-group">
+                <label>Backup folder</label>
+                <input type="text" id="backup-dir" value="{{ cfg.backup_dir }}" spellcheck="false">
+            </div>
+            <div class="form-group">
+                <label>Keep the last</label>
+                <div class="inline-input">
+                    <input type="number" id="backup-keep" min="1" max="100" value="{{ cfg.backup_max_copies }}"> backups
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-sm" id="save-backup">💾 Save</button>
+                <button class="btn btn-sm btn-primary" id="backup-now">📦 Back up now</button>
+            </div>
+            <div class="status-msg" id="backup-status"></div>
+            <h3 class="sub-title">Backups in this folder</h3>
+            <div id="backup-list" class="backup-list"><div class="muted small">Loading…</div></div>
+        </section>
+
+        <!-- Schedule & log -->
+        <section class="settings-card">
+            <h2>⟳ Sync schedule &amp; activity</h2>
+            <div class="form-group">
+                <label>Sync with OneDrive automatically every</label>
+                <div class="inline-input">
+                    <input type="number" id="sync-interval" min="0" max="1440" value="{{ cloud.sync_interval_minutes }}"> minutes
+                    <span class="muted">(0 = only when you press Sync)</span>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-primary" id="save-interval">💾 Save</button>
+            <div class="status-msg" id="interval-status"></div>
+            <h3 class="sub-title">Activity log</h3>
+            <div id="sync-log" class="sync-log"></div>
+        </section>
+    </div>
+
+    <h2 class="settings-section-title">🔧 Application</h2>
+    <div class="settings-grid">
+        <section class="settings-card">
+            <h2>📚 Notebooks &amp; security</h2>
+            <div class="form-group">
+                <label>Default notebook <span class="muted">(opens first; new notes go here)</span></label>
+                <select id="default-folder">
+                    <option value="none" {{ 'selected' if not cfg.default_folder_id }}>— All Notes —</option>
+                    {% for f in folders %}
+                    <option value="{{ f.id }}" {{ 'selected' if cfg.default_folder_id == f.id }}>{{ f.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Log out after inactivity (minutes)</label>
+                <input type="number" id="autolock-minutes" min="1" value="{{ cfg.autolock_minutes }}">
+            </div>
+            <button class="btn btn-sm btn-primary" id="save-app">💾 Save</button>
+            <div class="status-msg" id="app-status"></div>
+        </section>
+
+        <section class="settings-card logs-card">
+            <h2>📜 Logs</h2>
+            <p class="settings-desc">Plain-text logs of sign-ins and OneDrive connections, every sync, and every note or notebook
+                created, edited, moved or deleted (titles only, never note text). Folder:
+                <code id="logs-folder">…</code></p>
+            <div class="log-files" id="log-files"><span class="muted small">Loading…</span></div>
+            <pre class="log-view" id="log-view" hidden></pre>
+        </section>
+
+        <section class="settings-card">
+            <h2>🖥️ Server &amp; LAN access</h2>
+            {% if lan_urls %}
+            <div class="lan-box">
+                <div class="lan-title">🌐 Open Pustakam from other devices on your network</div>
+                {% for u in lan_urls %}<a href="{{ u }}" class="lan-url">{{ u }}</a>{% endfor %}
+                <small class="muted">Sign in there with the same {{ platform }} account.</small>
+            </div>
+            {% else %}
+            <p class="settings-note">Only this computer can reach Pustakam (listen address {{ cfg.host }}). Set the listen address to <code>0.0.0.0</code> for LAN access.</p>
+            {% endif %}
+            <p class="settings-desc">Sign-in uses your {{ platform }} account. This server runs as
+                <code>{{ service_user }}</code>, so only that account can sign in
+                (more can be added under <code>allowed_users</code> in <code>config.json</code>).</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Listen address</label>
+                    <input type="text" id="srv-host" value="{{ cfg.host }}">
+                </div>
+                <div class="form-group">
+                    <label>Port</label>
+                    <input type="number" id="srv-port" value="{{ cfg.port }}">
+                </div>
+            </div>
+            <button class="btn btn-sm btn-primary" id="save-server">💾 Save</button>
+            <div class="status-msg" id="server-status"></div>
+            <p class="settings-note">Address/port changes apply after a restart:<br>
+                {% if is_windows %}<code>Stop-ScheduledTask Pustakam; Start-ScheduledTask Pustakam</code>
+                {% else %}<code>systemctl --user restart pustakam</code>{% endif %}</p>
+        </section>
+    </div>
+</div>
+<script id="boot-data" type="application/json">{{ cloud|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/PustakamCommon.js') }}?v={{ version }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamSettings.js') }}?v={{ version }}"></script>
+{% endblock %}

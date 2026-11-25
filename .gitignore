@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Never commit personal data, tokens or logs (these live in ~/.pustakam, but just in case)
+*.db
+*.db-wal
+*.db-shm
+config.json
+rclone.conf
+.sessions.json
+.secret_key
+*.log
+Logs/
+backups/
+bin/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

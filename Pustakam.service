@@ -1,0 +1,26 @@
+# Pustakam (पुस्तकम्) — systemd *user* service (reference copy).
+# PustakamInstall.sh writes this for you as ~/.config/systemd/user/pustakam.service
+# together with pustakam-backup.service + pustakam-backup.timer (daily 21:00).
+#
+# Manual install:
+#   cp Pustakam.service ~/.config/systemd/user/pustakam.service
+#   systemctl --user daemon-reload && systemctl --user enable --now pustakam
+#   loginctl enable-linger $USER      # keep running when logged out / start at boot
+#
+# Do not add NoNewPrivileges=true: PAM password checks use the setgid helper
+# unix_chkpwd, which that option blocks.
+[Unit]
+Description=Pustakam (पुस्तकम्) notes server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/share/pustakam/app
+ExecStart=%h/.local/share/pustakam/venv/bin/python %h/.local/share/pustakam/app/PustakamApp.py
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target

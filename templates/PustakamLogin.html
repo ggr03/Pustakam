@@ -1,0 +1,33 @@
+{% extends "PustakamBase.html" %}
+{% block title %}{{ app_name }} — Sign in{% endblock %}
+{% block body_class %}page-login{% endblock %}
+{% block body %}
+<div class="login-container">
+    <div class="login-box">
+        <img class="login-logo" src="{{ url_for('static', filename='img/PustakamLogo.svg') }}" alt="">
+        <h1>{{ app_name }}</h1>
+        <div class="login-dev">{{ app_name_dev }}</div>
+        <p class="login-subtitle">Your notes, your machine, your cloud &middot; v{{ version }}</p>
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="/login" autocomplete="on">
+            <div class="form-group">
+                <label for="username">{{ platform }} username</label>
+                <input type="text" id="username" name="username" value="{{ username }}"
+                       autocomplete="username" required {% if not username %}autofocus{% endif %}>
+            </div>
+            <div class="form-group">
+                <label for="password">{{ platform }} password</label>
+                <input type="password" id="password" name="password" autocomplete="current-password"
+                       placeholder="Your {{ platform }} account password" required {% if username %}autofocus{% endif %}>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </form>
+        <p class="login-hint">Sign in with the {{ platform }} account that runs Pustakam
+            (<code>{{ service_user }}</code>).
+            {% if platform == "Windows" %}Microsoft-account users can type
+            <code>MicrosoftAccount\you@outlook.com</code>; a PIN will not work.{% endif %}</p>
+    </div>
+</div>
+{% endblock %}

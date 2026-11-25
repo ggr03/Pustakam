@@ -1,0 +1,35 @@
+Pustakam/
+├── PustakamApp.py              Flask web app + API routes; served by waitress (python PustakamApp.py)
+├── PustakamConfig.py           Paths (~/.pustakam), defaults, config.json load/save
+├── PustakamDatabase.py         SQLite: notebooks, notes, tags, FTS search, cloud-sync state
+├── PustakamAuth.py             OS sign-in: Linux PAM / Windows LogonUser; sessions; rate limit
+├── PustakamCloudBase.py        Shared cloud errors and safe file names
+├── PustakamOneDrive.py         OneDrive provider via rclone (Microsoft sign-in, no Client ID)
+├── PustakamGetRclone.py        Downloads the official rclone build (SHA-256 verified)
+├── PustakamCloudSync.py        Two-way sync engine, connection test, auto-sync scheduler
+├── PustakamLogs.py             Log files in ~/.pustakam/Logs (connection, sync, notes, backup)
+├── PustakamBackup.py           Rotating .zip backups to a folder (daily timer + 'Back up now')
+├── PustakamRequirements.txt    Python packages
+├── PustakamInstall.sh          Linux installer (apt / dnf / yum / zypper; systemd or cron)
+├── PustakamUninstall.sh        Linux uninstaller
+├── PustakamInstall.ps1         Windows installer (Task Scheduler)
+├── PustakamUninstall.ps1       Windows uninstaller
+├── Pustakam.service            Reference systemd user unit
+├── README.md                   Documentation (name, features, install, sync, files)
+├── PustakamFileStructure.txt   This file
+├── templates/
+│   ├── PustakamBase.html
+│   ├── PustakamLogin.html
+│   ├── PustakamIndex.html      Main app: sidebar, note list, reader/split editor, status bar
+│   └── PustakamSettings.html   OneDrive sync, local backup, app & server options
+└── static/
+    ├── css/PustakamStyle.css
+    ├── img/PustakamLogo.svg
+    └── js/
+        ├── PustakamCommon.js       fetch helper, ISO dates, toast, inactivity logout
+        ├── PustakamMarkdown.js     Markdown + KaTeX math + mhchem chemistry renderer
+        ├── PustakamFolderIcons.js  Unique notebook icons from the name
+        ├── PustakamLayout.js       Collapsible notebooks pane, mobile drawers, swipe
+        ├── PustakamWeather.js      Status-bar weather (Open-Meteo)
+        ├── PustakamNotes.js        Notebooks, notes, read/edit modes, sync button
+        └── PustakamSettings.js     Settings page logic
