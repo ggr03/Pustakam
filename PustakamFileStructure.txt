@@ -16,6 +16,7 @@ Pustakam/
 ├── PustakamUninstall.ps1       Windows uninstaller
 ├── Pustakam.service            Reference systemd user unit
 ├── README.md                   Documentation (name, features, install, sync, files)
+├── LICENSE                     MIT License
 ├── PustakamFileStructure.txt   This file
 ├── templates/
 │   ├── PustakamBase.html

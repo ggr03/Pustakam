@@ -172,3 +172,9 @@ See [`PustakamFileStructure.txt`](PustakamFileStructure.txt) for the source layo
 Python 3.9+, `flask`, `requests`, `waitress`, and `python-pam` (Linux only); see `PustakamRequirements.txt`. rclone 1.58+ for OneDrive (installed by the installers via `PustakamGetRclone.py`).
 The editor loads marked, DOMPurify, KaTeX (+ mhchem) and highlight.js from the jsDelivr CDN, and weather
 comes from [Open-Meteo](https://open-meteo.com) (no API key). Both need internet access. Notes work offline.
+
+## 📄 License
+
+Pustakam is released under the [MIT License](LICENSE): free to use, copy, modify and share, with no warranty.
+It talks to [rclone](https://rclone.org) (MIT) and loads [marked](https://marked.js.org), [DOMPurify](https://github.com/cure53/DOMPurify),
+[KaTeX](https://katex.org), [highlight.js](https://highlightjs.org) and [Flask](https://flask.palletsprojects.com), each under its own open-source licence.
