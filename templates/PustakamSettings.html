@@ -179,6 +179,6 @@
 <script id="boot-data" type="application/json">{{ cloud|tojson }}</script>
 {% endblock %}
 {% block scripts %}
-<script defer src="{{ url_for('static', filename='js/PustakamCommon.js') }}?v={{ version }}"></script>
-<script defer src="{{ url_for('static', filename='js/PustakamSettings.js') }}?v={{ version }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamCommon.js') }}?v={{ asset_v }}"></script>
+<script defer src="{{ url_for('static', filename='js/PustakamSettings.js') }}?v={{ asset_v }}"></script>
 {% endblock %}

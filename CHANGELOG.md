@@ -3,6 +3,25 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- **Find & replace in the editor** (`Ctrl+F` / `Ctrl+H`): live highlighting of every match, a *2 of 5* counter,
+  next/previous (`Enter`, `Shift+Enter`, `F3`), match case, whole word and regular expressions (with `$1` groups),
+  replace one or all. *Replace all* is a single undo step.
+- **Modern editor toolbar**: icon buttons in groups with tooltips that show shortcuts, undo/redo, a text-style menu
+  (Paragraph, H1–H4), strikethrough, numbered list, quote, image, divider, and a Markdown & shortcuts cheat sheet (`?`).
+  Bold, italic, code and lists toggle on and off; lists apply to every selected line.
+- **Keyboard shortcuts**: `Ctrl+B/I/K/M`, `Ctrl+Shift+X`, `` Ctrl+` ``, `Ctrl+Shift+7/8/9/.` (⌘ on Mac).
+- **Smart editing**: Enter continues bulleted, numbered and task lists (an empty item ends the list);
+  Tab / Shift+Tab indent and outdent selected lines.
+- Live **Ln/Col, selection and word count** in the toolbar.
+
+### Changed
+- Toolbar edits use the browser's native undo stack, so `Ctrl+Z` undoes formatting too.
+- CSS/JS cache-busting now uses a fingerprint of the static files, so browsers always load the current scripts.
+- Phones: text autosizing is disabled so the editor and its highlights always line up.
+
 ## [1.0] - 2026-11-24
 
 First public release. Pustakam is the successor of *NoteVault*: renamed, rebuilt and made cross-platform.
@@ -73,4 +92,5 @@ First public release. Pustakam is the successor of *NoteVault*: renamed, rebuilt
 - The sign-in page no longer shows the OS username to other devices on the network.
 - Tokens, config, sessions and secret key are stored with `chmod 600` on Linux.
 
+[Unreleased]: https://github.com/ggr03/Pustakam/compare/v-1.0...main
 [1.0]: https://github.com/ggr03/Pustakam/releases/tag/v-1.0

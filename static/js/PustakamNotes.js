@@ -184,6 +184,7 @@
         $('note-content').value = note.content || '';
         $('note-tags-input').value = (note.tags || []).map(t => t.name).join(', ');
         fillFolderSelect(); renderTagChips();
+        PustakamEditor.reset();
         setMode(mode, true);
         document.dispatchEvent(new Event('pk:note-opened'));
         document.querySelectorAll('.note-card').forEach(el => el.classList.toggle('active', +el.dataset.id === nid));
@@ -217,6 +218,7 @@
         $('view-btn').hidden = !edit;
         $('save-btn').hidden = !edit;
         $('md-toolbar').hidden = !edit;
+        PustakamEditor.setActive(edit);
         $('note-tags-input').hidden = !edit;
         $('tag-chips').hidden = edit;
         PustakamMarkdown.render($('note-preview'), $('note-content').value);
@@ -282,35 +284,7 @@
         const t = $('note-title'); t.focus(); t.select();
     }
 
-    // ---- markdown toolbar
-    function surround(before, after = before, placeholder = 'text') {
-        const ta = $('note-content');
-        const s = ta.selectionStart, e = ta.selectionEnd;
-        const sel = ta.value.slice(s, e) || placeholder;
-        ta.setRangeText(before + sel + after, s, e, 'select');
-        ta.selectionStart = s + before.length; ta.selectionEnd = s + before.length + sel.length;
-        ta.focus(); markDirty();
-    }
-
-    function insertBlock(text, cursorOffset = null) {
-        const ta = $('note-content');
-        const s = ta.selectionStart;
-        const prefix = s > 0 && ta.value[s - 1] !== '\n' ? '\n' : '';
-        ta.setRangeText(prefix + text, s, ta.selectionEnd, 'end');
-        if (cursorOffset !== null) { const p = s + prefix.length + cursorOffset; ta.setSelectionRange(p, p); }
-        ta.focus(); markDirty();
-    }
-
-    const TOOLBAR = {
-        bold: () => surround('**'), italic: () => surround('*'),
-        h2: () => insertBlock('## ', 3), ul: () => insertBlock('- ', 2), task: () => insertBlock('- [ ] ', 6),
-        code: () => insertBlock('```\n\n```\n', 4), link: () => surround('[', '](https://)', 'link text'),
-        table: () => insertBlock('| Column A | Column B |\n|---|---|\n| 1 | 2 |\n'),
-        math: () => surround('$', '$', 'E = mc^2'),
-        mathblock: () => insertBlock('$$\n\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}\n$$\n'),
-        chem: () => surround('$\\ce{', '}$', 'H2SO4'),
-        reaction: () => surround('$\\ce{', '}$', 'N2 + 3H2 <=> 2NH3'),
-    };
+    // ---- toolbar, find & replace and smart editing live in PustakamEditor.js
 
     // ---- scroll sync between editor and preview
     let syncing = false;
@@ -432,10 +406,6 @@
         $('note-tags-input').addEventListener('input', markDirty);
         $('note-folder').addEventListener('change', markDirty);
         $('note-content').addEventListener('scroll', () => syncScroll($('note-content'), $('note-preview')));
-        $('note-content').addEventListener('keydown', e => {
-            if (e.key === 'Tab') { e.preventDefault(); $('note-content').setRangeText('    ', $('note-content').selectionStart, $('note-content').selectionEnd, 'end'); markDirty(); }
-        });
-        $('md-toolbar').addEventListener('click', e => { const b = e.target.closest('[data-md]'); if (b) TOOLBAR[b.dataset.md](); });
 
         $('search-input').addEventListener('input', () => {
             clearTimeout(searchTimer);

@@ -36,9 +36,25 @@ app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
 db.init_db()
 
 
+def _asset_fingerprint():
+    """Cache-busting tag for CSS/JS URLs: changes whenever any static file changes,
+    so browsers never mix old cached scripts with new pages."""
+    import hashlib
+    h = hashlib.sha256(VERSION.encode())
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+    for dirpath, _, files in sorted(os.walk(root)):
+        for name in sorted(files):
+            st = os.stat(os.path.join(dirpath, name))
+            h.update(f"{name}:{st.st_size}:{int(st.st_mtime)}".encode())
+    return h.hexdigest()[:10]
+
+
+ASSET_V = _asset_fingerprint()
+
+
 @app.context_processor
 def _globals():
-    return {"version": VERSION, "app_name": APP_NAME, "app_name_dev": APP_NAME_DEVANAGARI}
+    return {"version": VERSION, "asset_v": ASSET_V, "app_name": APP_NAME, "app_name_dev": APP_NAME_DEVANAGARI}
 
 
 # ------------------------------------------------------------------ request security

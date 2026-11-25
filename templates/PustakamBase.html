@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/PustakamLogo.svg') }}">
     <title>{% block title %}{{ app_name }} ({{ app_name_dev }}){% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/PustakamLogo.svg') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/PustakamStyle.css') }}?v={{ version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/PustakamStyle.css') }}?v={{ asset_v }}">
     {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">

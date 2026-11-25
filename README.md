@@ -42,9 +42,15 @@ Notes open read-only, nicely typeset, with math and chemistry rendered.
 ![Reading view: notebooks, note list and a rendered note with chemistry and math](docs/screenshots/PustakamReadView.png)
 
 ### Edit mode with live preview
-Press **✏️ Edit**: Markdown on the left, live preview on the right, with a toolbar for formatting, math (`∑`) and chemistry (`⚗`).
+Press **✏️ Edit**: Markdown on the left, live preview on the right, with a modern formatting toolbar (headings, lists,
+links, tables, math `∑` and chemistry `⚗`) and a live line/column and word count.
 
-![Edit mode: Markdown source on the left, live preview with formulas on the right](docs/screenshots/PustakamEditLivePreview.png)
+![Edit mode: toolbar, Markdown source on the left, live preview with formulas on the right](docs/screenshots/PustakamEditLivePreview.png)
+
+### Find & replace
+Press **Ctrl+F** (find) or **Ctrl+H** (replace) while editing. Every match is highlighted in the text.
+
+![Find and replace panel with highlighted matches](docs/screenshots/PustakamFindReplace.png)
 
 ### The status bar
 
@@ -76,6 +82,8 @@ Press **✏️ Edit**: Markdown on the left, live preview on the right, with a t
 | 📚 **Notebooks** | Each notebook gets its own icon, picked from its name (*Chemistry Lab* → ⚗️, *Travel* → ✈️, otherwise its initials) on a colour and pattern unique to that name. Right-click (or **⋯**) a notebook to **set it as default**, rename or delete it. The default notebook (★) opens first and new notes go there. |
 | 👁️ **Read first** | Notes open in a clean reading view. Press **✏️ Edit** (or `E`, or double-click) to edit. |
 | ✂️ **Split editor** | Editing shows Markdown on the left and a live preview on the right (stacked on narrow screens), with matching scroll. |
+| 🛠️ **Modern toolbar** | Undo/redo, text style, bold/italic/strikethrough/code, lists, quote, link, image, table, code block, divider, math and chemistry, with tooltips, shortcuts and toggles. Lists continue when you press Enter. See [Editing notes](#️-editing-notes). |
+| 🔍 **Find & replace** | **Ctrl+F / Ctrl+H** in the editor: highlighted matches, *3 of 12* counter, match case, whole word, regular expressions with `$1` groups, replace one or all (undoable). |
 | ∑ **Math** | KaTeX: `$E=mc^2$`, `$$\int_0^1 x^2\,dx$$`, `\( … \)`, `\[ … \]`. |
 | ⚗️ **Chemistry** | mhchem: `$\ce{H2SO4}$`, `$\ce{N2 + 3H2 <=> 2NH3}$`, or a bare `\ce{CO2}` anywhere in text. Units: `\pu{9.81 m/s^2}`. |
 | ☁️ **OneDrive sync** | Two-way. Sign in with your outlook.com / hotmail.com / msn.com account, no app setup. Files you add to the OneDrive folder from the web or your phone become notes here. |
@@ -85,6 +93,44 @@ Press **✏️ Edit**: Markdown on the left, live preview on the right, with a t
 | 💾 **Local backup** | Daily at 21:00 to any folder you choose (second disk, USB drive, NAS), plus **Back up now** in Settings. The last 5 (configurable) are kept as `.zip` files holding the database and a Markdown copy of every note. |
 
 Keyboard: `Alt+N` new note · `E` edit · `Ctrl+S` save · `Ctrl+Enter` save and read · `Esc` back to reading.
+
+---
+
+## ✏️ Editing notes
+
+Open a note and press **✏️ Edit** (or `E`). The toolbar, from left to right:
+
+| Button | Does | Shortcut |
+|---|---|---|
+| ↶ ↷ | Undo / redo | `Ctrl+Z` / `Ctrl+Y` |
+| **Paragraph ▾** | Text style: paragraph, Heading 1–4 (follows the line the cursor is on) | |
+| **B** *I* ~~S~~ `<>` | Bold, italic, strikethrough, inline code. Press again to remove | `Ctrl+B` `Ctrl+I` `Ctrl+Shift+X` ``Ctrl+` `` |
+| • 1. ☑ ❝ | Bulleted, numbered and task list, quote. Works on all selected lines; press again to remove | `Ctrl+Shift+8` `7` `9` `.` |
+| 🔗 🖼 ▦ `{}` — | Link, image, table, code block, divider line | `Ctrl+K` (link), ``Ctrl+Shift+` `` (code block) |
+| ∑ ∫ ⚗ ⇌ | Inline math `$…$`, math block `$$…$$`, chemical formula `$\ce{…}$`, chemical reaction | `Ctrl+M` (math) |
+| 🔍 ⇄ | Find, Find & replace | `Ctrl+F`, `Ctrl+H` |
+| ? | Markdown & shortcuts cheat sheet | |
+
+On a Mac, use `⌘` instead of `Ctrl`. Hover over any button to see its name and shortcut.
+
+**Smart editing**
+* **Enter** in a list continues it (`- `, `1.` → `2.`, `- [ ]`); Enter on an empty item ends the list.
+* **Tab / Shift+Tab** indents or outdents the selected lines.
+* **Link:** select a URL and press 🔗 to get `[link text](url)`, or select text to get `[text](…)` with the address ready to type.
+* `Ctrl+S` saves, `Ctrl+Enter` saves and goes back to reading, and `Esc` goes back to reading.
+
+### 🔍 Find & replace
+
+1. While editing, press **Ctrl+F** (or the 🔍 button). Type what you're looking for. All matches light up in the text and the
+   counter shows e.g. **2 of 5**.
+2. **Enter** / **↓** goes to the next match, **Shift+Enter** / **↑** to the previous one (also `F3` / `Shift+F3`).
+3. Options in the box: **Aa** match case · **ab** whole word · **.\*** regular expression (`Alt+C`, `Alt+W`, `Alt+R`).
+4. For **replace**, press **Ctrl+H** (or the **›** arrow): type the replacement, then **Replace** (`Enter`) for the current
+   match or **All** (`Ctrl+Alt+Enter`) for every match. With regular expressions, `$1`, `$2` … insert captured groups.
+   For example, find `H(\d)` and replace with `H_$1`.
+5. Changed your mind? **Ctrl+Z** undoes a replace, including *Replace all*, in one step. **Esc** closes the box.
+
+<img src="docs/screenshots/PustakamEditorHelp.png" alt="Markdown and shortcuts cheat sheet" width="560">
 
 ---
 

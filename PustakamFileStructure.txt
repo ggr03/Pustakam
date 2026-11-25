@@ -31,6 +31,7 @@ Pustakam/
     ├── img/PustakamLogo.svg
     └── js/
         ├── PustakamCommon.js       fetch helper, ISO dates, toast, inactivity logout
+        ├── PustakamEditor.js       Editor toolbar, shortcuts, smart lists, find & replace
         ├── PustakamMarkdown.js     Markdown + KaTeX math + mhchem chemistry renderer
         ├── PustakamFolderIcons.js  Unique notebook icons from the name
         ├── PustakamLayout.js       Collapsible notebooks pane, mobile drawers, swipe
