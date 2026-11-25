@@ -12,6 +12,7 @@ if sys.version_info < (3, 11):
     sys.exit(f"Pustakam needs Python 3.11 or newer (this is {sys.version.split()[0]}). "
              "Re-run the installer to set up a newer Python.")
 from functools import wraps
+from urllib.parse import urlparse
 
 from flask import (Flask, abort, jsonify, redirect, render_template, request,
                    session, url_for)
@@ -40,14 +41,79 @@ def _globals():
     return {"version": VERSION, "app_name": APP_NAME, "app_name_dev": APP_NAME_DEVANAGARI}
 
 
+# ------------------------------------------------------------------ request security
+UNSAFE_METHODS = ("POST", "PUT", "PATCH", "DELETE")
+CSRF_HEADER = "X-Pustakam"
+
+CSP = "; ".join([
+    "default-src 'self'",
+    "script-src 'self' https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",   # KaTeX and notebook icons use style attributes
+    "font-src 'self' data: https://cdn.jsdelivr.net",
+    "img-src 'self' data: https:",                                 # Markdown images from https sites
+    "connect-src 'self' https://api.open-meteo.com https://air-quality-api.open-meteo.com https://geocoding-api.open-meteo.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+])
+
+
+def _is_local_request():
+    return (request.remote_addr or "") in ("127.0.0.1", "::1")
+
+
+@app.before_request
+def _csrf_guard():
+    """Block cross-site request forgery:
+    * any state-changing request whose Origin is another site is refused;
+    * API calls must carry the X-Pustakam header, which other sites cannot add
+      without a CORS pre-flight that this server never approves."""
+    if request.method not in UNSAFE_METHODS:
+        return None
+    origin = request.headers.get("Origin")
+    if origin and origin != "null" and urlparse(origin).netloc.lower() != (request.host or "").lower():
+        logs.connection(f"blocked cross-site {request.method} {request.path} from origin {origin} ({request.remote_addr})", "warning")
+        abort(403)
+    if request.path.startswith("/api/") and request.headers.get(CSRF_HEADER) != "1":
+        return jsonify({"error": "Missing request header"}), 403
+    return None
+
+
+@app.after_request
+def _security_headers(resp):
+    h = resp.headers
+    h.setdefault("Content-Security-Policy", CSP)
+    h.setdefault("X-Content-Type-Options", "nosniff")
+    h.setdefault("X-Frame-Options", "DENY")
+    h.setdefault("Referrer-Policy", "same-origin")
+    h.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
+    if request.path.startswith("/api/") or request.path in ("/", "/settings", "/login"):
+        h["Cache-Control"] = "no-store"
+    return resp
+
+
 def _current_user():
     return auth.validate_session(session.get("token"))
+
+
+def _session_expired():
+    """Server-side inactivity logout (not only in the browser)."""
+    minutes = load_config().get("autolock_minutes", AUTOLOCK_MINUTES)
+    return time.time() - session.get("last_activity", 0) > minutes * 60
 
 
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not _current_user():
+        user = _current_user()
+        if user and _session_expired():
+            logs.connection(f"logged out after inactivity: user '{user}' from {request.remote_addr}")
+            auth.destroy_session(session.get("token"))
+            user = None
+        if user:
+            session["last_activity"] = time.time()
+        if not user:
             session.clear()
             if request.path.startswith("/api/"):
                 return jsonify({"error": "Not signed in"}), 401
@@ -60,7 +126,8 @@ def login_required(f):
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
     error = None
-    username = auth.service_user()
+    local = _is_local_request()
+    username = auth.service_user() if local else ""
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         ok, error = auth.authenticate(username, request.form.get("password", ""),
@@ -75,7 +142,7 @@ def login_page():
             return redirect(url_for("index_page"))
         logs.connection(f"sign-in FAILED: user '{username}' from {ip}: {error}", "warning")
     return render_template("PustakamLogin.html", error=error, username=username,
-                           platform=auth.platform_label(), service_user=auth.service_user())
+                           platform=auth.platform_label(), service_user=auth.service_user() if local else "")
 
 
 @app.route("/logout")
@@ -346,7 +413,8 @@ def _do_import(folder_id, imported, errors):
             db.create_note(title or "Imported Note", content, folder_id)
             imported += 1
         except Exception as e:  # noqa
-            errors.append(f"Failed to save {original}: {e}")
+            logs.note("import failed", None, original, f"({type(e).__name__}: {e})")
+            errors.append(f"Failed to save {original} (details in Settings → Logs → notes.log)")
     return jsonify({"imported": imported, "errors": errors})
 
 
@@ -509,7 +577,8 @@ def api_backup():
         try:
             path = backup.create_backup()
         except Exception as e:  # noqa
-            return jsonify({"error": f"Backup failed: {e}"}), 500
+            logs.backup(f"backup failed: {type(e).__name__}: {e}", "error")
+            return jsonify({"error": "Backup failed. Check the backup folder in Settings, and Settings → Logs → backup.log."}), 500
         db.log_sync(None, "backup:create", path)
         return jsonify({"ok": True, "path": path, "folder": backup.backup_dir(), "backups": backup.list_backups()})
     return jsonify({"folder": backup.backup_dir(), "backups": backup.list_backups()})

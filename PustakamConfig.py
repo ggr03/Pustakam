@@ -11,7 +11,7 @@ import os
 import secrets
 import threading
 
-VERSION = "2026-11-24-01"
+VERSION = "1.0"
 APP_NAME = "Pustakam"
 APP_NAME_DEVANAGARI = "पुस्तकम्"
 

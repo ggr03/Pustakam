@@ -1,7 +1,7 @@
 /* Pustakam (पुस्तकम्) — Settings page: OneDrive sync, local backup, app options */
 (() => {
     const $ = id => document.getElementById(id);
-    const KEY = 'onedrive';
+    const PROVIDER = 'onedrive';
     let cloud = {};
     let pollTimer = null;
 
@@ -32,7 +32,7 @@
     }
 
     function render() {
-        const p = cloud[KEY];
+        const p = cloud[PROVIDER];
         const pill = q('[data-role=pill]');
         if (p.connected) {
             const a = p.account || {};
@@ -73,14 +73,14 @@
             q('[data-field=remote_folder]').focus();
             return false;
         }
-        const prev = cloud[KEY].remote_folder;
+        const prev = cloud[PROVIDER].remote_folder;
         if (prev && folder && prev !== folder &&
             !confirm(`Change the OneDrive folder from "${prev}" to "${folder}"?\nNotes will be linked again to the new folder on the next sync. Nothing is deleted.`)) {
             q('[data-field=remote_folder]').value = prev;
             return false;
         }
         try {
-            const r = await P.api(`/api/cloud/${KEY}/config`, { method: 'POST', json: { remote_folder: folder, enabled } });
+            const r = await P.api(`/api/cloud/${PROVIDER}/config`, { method: 'POST', json: { remote_folder: folder, enabled } });
             cloud = r.cloud; render();
             if (!quiet) msg(status(), '✅ Saved', 'success');
             return true;
@@ -98,11 +98,11 @@
         msg(status(), 'Starting Microsoft sign-in…', 'info');
         const win = window.open('about:blank', '_blank');   // open now so pop-up blockers allow it
         try {
-            const r = await P.api(`/api/cloud/${KEY}/connect`, { method: 'POST' });
+            const r = await P.api(`/api/cloud/${PROVIDER}/connect`, { method: 'POST' });
             if (win) { win.location.href = r.auth_url; msg(status(), 'Waiting for you to approve access in the Microsoft tab…', 'info'); }
             else { msg(status(), 'Pop-up blocked. Open this link to sign in:', 'error'); status().insertAdjacentHTML('beforeend', ` <a href="${P.esc(r.auth_url)}" target="_blank" rel="noopener">Sign in with Microsoft</a>`); }
             q('[data-role=paste]').hidden = false;
-            waitForConnection(cloud[KEY].last_test?.time || 0);
+            waitForConnection(cloud[PROVIDER].last_test?.time || 0);
         } catch (e) {
             if (win) win.close();
             msg(status(), `❌ ${e.message}`, 'error');
@@ -115,7 +115,7 @@
         pollTimer = setInterval(async () => {
             if (Date.now() - started > 15 * 60 * 1000) { clearInterval(pollTimer); return; }
             const c = await P.api('/api/cloud/status');
-            const p = c[KEY];
+            const p = c[PROVIDER];
             if (p.signin && p.signin.state === 'error') {
                 clearInterval(pollTimer);
                 msg(status(), `❌ ${p.signin.error}`, 'error');
@@ -133,7 +133,7 @@
     function onTested(t) {
         if (t.ok) {
             msg(status(), '✅ OneDrive connected and tested. Two-way sync is on. Press "Sync now" to start right away.', 'success');
-            if (!cloud[KEY].enabled) { q('[data-field=enabled]').checked = true; save(true); }
+            if (!cloud[PROVIDER].enabled) { q('[data-field=enabled]').checked = true; save(true); }
         } else if (t.needs_folder) {
             msg(status(), 'Connected. Now tell Pustakam where to keep your notebooks in OneDrive, Save, and Test.', 'error');
             q('[data-field=remote_folder]').focus();
@@ -147,7 +147,7 @@
         if (!url) return;
         msg(status(), 'Finishing sign-in…', 'info');
         try {
-            const r = await P.api(`/api/cloud/${KEY}/complete`, { method: 'POST', json: { url } });
+            const r = await P.api(`/api/cloud/${PROVIDER}/complete`, { method: 'POST', json: { url } });
             clearInterval(pollTimer);
             q('[data-role=paste]').hidden = true;
             await refresh();
@@ -158,7 +158,7 @@
     async function test() {
         if (!(await save(true))) return;
         msg(status(), 'Testing OneDrive…', 'info');
-        const t = await P.api(`/api/cloud/${KEY}/test`, { method: 'POST' });
+        const t = await P.api(`/api/cloud/${PROVIDER}/test`, { method: 'POST' });
         await refresh();
         onTested(t);
     }
@@ -166,7 +166,7 @@
     async function syncNow() {
         if (!(await save(true))) return;
         msg(status(), 'Syncing with OneDrive…', 'info');
-        const r = await P.api(`/api/cloud/${KEY}/sync`, { method: 'POST' });
+        const r = await P.api(`/api/cloud/${PROVIDER}/sync`, { method: 'POST' });
         await refresh();
         if (r.error) msg(status(), `❌ ${r.error}`, 'error');
         else msg(status(), `✅ Sync done: ↑${r.stats.uploaded} ↓${r.stats.downloaded}, ${r.stats.conflicts} conflict(s), ${r.stats.errors} error(s)`, r.ok ? 'success' : 'error');
@@ -174,14 +174,14 @@
 
     async function disconnect() {
         if (!confirm('Disconnect OneDrive?\nYour notes stay on this computer and in OneDrive; they just stop syncing.')) return;
-        await P.api(`/api/cloud/${KEY}/disconnect`, { method: 'POST' });
+        await P.api(`/api/cloud/${PROVIDER}/disconnect`, { method: 'POST' });
         await refresh();
         msg(status(), 'Disconnected.', 'success');
     }
 
     async function resetLink() {
         if (!confirm('Reset the OneDrive link?\nOn the next sync Pustakam matches notes and files by name again. Identical notes are linked, others are copied both ways. Nothing is deleted.')) return;
-        await P.api(`/api/cloud/${KEY}/reset`, { method: 'POST' });
+        await P.api(`/api/cloud/${PROVIDER}/reset`, { method: 'POST' });
         msg(status(), 'Link reset. Press "Sync now".', 'success');
         loadLog();
     }
@@ -280,7 +280,7 @@
 
         $('save-interval').addEventListener('click', async () => {
             try {
-                await P.api(`/api/cloud/${KEY}/config`, { method: 'POST', json: { sync_interval_minutes: +$('sync-interval').value || 0 } });
+                await P.api(`/api/cloud/${PROVIDER}/config`, { method: 'POST', json: { sync_interval_minutes: +$('sync-interval').value || 0 } });
                 msg($('interval-status'), '✅ Saved', 'success');
             } catch (e) { msg($('interval-status'), `❌ ${e.message}`, 'error'); }
         });

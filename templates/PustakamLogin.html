@@ -24,8 +24,8 @@
             </div>
             <button type="submit" class="btn btn-primary btn-block">Sign in</button>
         </form>
-        <p class="login-hint">Sign in with the {{ platform }} account that runs Pustakam
-            (<code>{{ service_user }}</code>).
+        <p class="login-hint">Sign in with the {{ platform }} account that runs Pustakam{% if service_user %}
+            (<code>{{ service_user }}</code>){% endif %}.
             {% if platform == "Windows" %}Microsoft-account users can type
             <code>MicrosoftAccount\you@outlook.com</code>; a PIN will not work.{% endif %}</p>
     </div>

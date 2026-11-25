@@ -44,8 +44,17 @@ _NOWINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0) if IS_WINDOWS else 0
 
 
 # ------------------------------------------------------------------ rclone helpers
+def _env_rclone():
+    """PUSTAKAM_RCLONE may point at a specific rclone binary (owner-controlled);
+    it is only accepted if it is an existing file named rclone / rclone.exe."""
+    p = os.environ.get("PUSTAKAM_RCLONE")
+    if p and os.path.isfile(p) and os.path.basename(p).lower() in ("rclone", "rclone.exe"):
+        return os.path.realpath(p)
+    return None
+
+
 def rclone_path():
-    for c in (os.environ.get("PUSTAKAM_RCLONE"),
+    for c in (_env_rclone(),
               os.path.join(os.path.dirname(APP_DIR), "bin", EXE),
               os.path.join(APP_DIR, "bin", EXE),
               shutil.which("rclone")):

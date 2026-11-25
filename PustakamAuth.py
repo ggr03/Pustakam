@@ -170,7 +170,7 @@ def authenticate(username, password, client="local"):
         _failures.pop(client, None)
         return True, ""
     _failures.setdefault(client, []).append(time.time())
-    return False, f"Invalid credentials. Sign in as the {platform_label()} account running Pustakam ({service_user()})."
+    return False, f"Invalid credentials. Sign in with the {platform_label()} account that runs Pustakam."
 
 
 def _load_sessions():

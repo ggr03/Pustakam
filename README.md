@@ -30,7 +30,7 @@ decades as plain `.md` files, and kept safe on your own computer, in your OneDri
 * **Use it anywhere at home.** Open it from phones, tablets and other computers on your LAN, with a mobile-friendly layout.
 * **Cross-platform installers.** Debian/Ubuntu/MX, Fedora/RHEL/Rocky/Alma, openSUSE and Windows 10/11.
 
-**Version:** `2026-11-24-01` (successor of NoteVault) · **Requires:** Python 3.11+
+**Version:** `1.0` (successor of NoteVault; see [CHANGELOG](CHANGELOG.md)) · **Requires:** Python 3.11+ · **Security:** see [SECURITY](SECURITY.md)
 
 ---
 
@@ -99,7 +99,7 @@ The bar along the bottom of the window holds everything that isn't part of a not
 | 🌍 **Add city…** | Adds a city to the weather chips (see below). |
 | **2026-11-24** | Today's date in ISO 8601 format (year-month-day), with the time underneath on wide screens. |
 | ● 👤 **your-name ▾** | The **account button**. The dot shows sync state: 🟢 synced/OK, 🟣 pulsing = syncing, 🟡 warning, 🔴 error, ⚪ not connected. Click it for the **account menu**. |
-| **v2026-11-24-01** | The Pustakam version you are running. |
+| **v1.0** | The Pustakam version you are running. |
 
 **Account menu** (click your name):
 * **Signed in as …**: the Linux or Windows account you signed in with.

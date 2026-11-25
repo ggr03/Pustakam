@@ -1,7 +1,8 @@
 /* Pustakam (पुस्तकम्) — shared helpers */
 const P = (() => {
     async function api(url, opts = {}) {
-        const init = { method: opts.method || 'GET', headers: {} };
+        // X-Pustakam: anti-CSRF header the server requires on every state-changing API call
+        const init = { method: opts.method || 'GET', headers: { 'X-Pustakam': '1' }, credentials: 'same-origin' };
         if (opts.json !== undefined) {
             init.headers['Content-Type'] = 'application/json';
             init.body = JSON.stringify(opts.json);
@@ -62,7 +63,7 @@ const P = (() => {
     function startSessionWatch() {
         let last = 0;
         const ping = () => {
-            if (Date.now() - last > 60000) { last = Date.now(); fetch('/api/ping', { method: 'POST' }); }
+            if (Date.now() - last > 60000) { last = Date.now(); fetch('/api/ping', { method: 'POST', headers: { 'X-Pustakam': '1' } }); }
         };
         ['click', 'keydown'].forEach(ev => document.addEventListener(ev, ping, { passive: true }));
         setInterval(async () => {

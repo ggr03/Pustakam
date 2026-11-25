@@ -17,6 +17,8 @@ Pustakam/
 ├── Pustakam.service            Reference systemd user unit
 ├── README.md                   Documentation (name, features, install, sync, files)
 ├── LICENSE                     MIT License
+├── CHANGELOG.md                Release notes (1.0)
+├── SECURITY.md                 Security design, scan results, accepted findings
 ├── PustakamFileStructure.txt   This file
 ├── docs/screenshots/          README screenshots (PustakamReadView.png, PustakamEditLivePreview.png, …)
 ├── templates/

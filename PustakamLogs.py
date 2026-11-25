@@ -44,9 +44,15 @@ def _get(kind):
     return lg
 
 
+def _clean(msg):
+    """One log entry = one line: neutralise CR/LF and other control characters
+    so a note title cannot forge extra log lines."""
+    return "".join(" " if (ord(ch) < 32 and ch != "\t") or ch == "\x7f" else ch for ch in str(msg))
+
+
 def _write(kind, msg, level="info"):
     try:
-        _get(kind).log(getattr(logging, level.upper(), logging.INFO), msg)
+        _get(kind).log(getattr(logging, level.upper(), logging.INFO), _clean(msg))
     except Exception:  # logging must never break the app
         pass
 
@@ -83,12 +89,16 @@ def list_logs():
 
 
 def tail(name, lines=300):
-    """Last `lines` lines of a log file in LOG_DIR (name is validated, no paths)."""
-    if name != os.path.basename(name) or ".log" not in name:
-        raise ValueError("bad log name")
-    path = os.path.join(LOG_DIR, name)
-    if not os.path.isfile(path):
+    """Last `lines` lines of a log file. Only files that actually exist in the Logs
+    folder can be read: the requested name must match a directory entry exactly
+    and resolve to a path inside the folder (no ../, no symlinks out)."""
+    entries = {e["name"]: e for e in list_logs()}
+    if name not in entries:
         raise FileNotFoundError(name)
+    root = os.path.realpath(LOG_DIR)
+    path = os.path.realpath(os.path.join(root, entries[name]["name"]))
+    if os.path.commonpath([root, path]) != root or not os.path.isfile(path):
+        raise ValueError("bad log name")
     with open(path, "rb") as f:
         f.seek(0, os.SEEK_END)
         size = f.tell()

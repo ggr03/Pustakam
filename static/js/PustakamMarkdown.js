@@ -88,12 +88,22 @@ const PustakamMarkdown = (() => {
         return out + text.slice(last);
     }
 
+    function codeHtml(text, cls, title) {
+        // built with DOM APIs (textContent / setAttribute), never by string concatenation
+        const c = document.createElement('code');
+        if (cls) c.className = cls;
+        if (title) c.setAttribute('title', String(title));
+        c.textContent = String(text);
+        return c.outerHTML;
+    }
+
     function renderMath({ tex, display }) {
-        if (!window.katex) return `<code>${P.esc(tex)}</code>`;
+        if (!window.katex) return codeHtml(tex);
         try {
+            // trust:false disables \href, \url, \htmlClass etc.; output is sanitised again below
             return katex.renderToString(tex, { displayMode: display, throwOnError: false, strict: 'ignore', trust: false, output: 'htmlAndMathml' });
         } catch (e) {
-            return `<code class="math-error" title="${P.esc(e.message)}">${P.esc(tex)}</code>`;
+            return codeHtml(tex, 'math-error', e && e.message);
         }
     }
 
@@ -109,7 +119,8 @@ const PustakamMarkdown = (() => {
             });
             purifyHooked = true;
         }
-        return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+        // html + MathML + SVG profiles keep KaTeX output; scripts, event handlers and javascript: URLs are removed
+        return DOMPurify.sanitize(html, { USE_PROFILES: { html: true, mathMl: true, svg: true } });
     }
 
     function toHtml(src) {
@@ -117,13 +128,13 @@ const PustakamMarkdown = (() => {
         const store = [];
         const prepared = splitCode(src || '').map(s => s.code ? s.text : extractMath(s.text, store)).join('');
         let html = marked.parse(prepared, { gfm: true, breaks: false });
-        html = sanitize(html);
         html = html.replace(/<p>\s*(PKMATH\d+X)\s*<\/p>/g, '$1');
         html = html.replace(/PKMATH(\d+)X/g, (_, i) => {
             const item = store[+i];
             return item ? (item.display ? `<div class="math-display">${renderMath(item)}</div>` : renderMath(item)) : '';
         });
-        return html;
+        // one final sanitising pass over everything that reaches the page, formulas included
+        return sanitize(html);
     }
 
     function render(el, src) {
