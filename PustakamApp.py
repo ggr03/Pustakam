@@ -7,6 +7,10 @@ Start:  python PustakamApp.py      (served by waitress on http://<host>:5150)
 import os
 import sys
 import time
+
+if sys.version_info < (3, 11):
+    sys.exit(f"Pustakam needs Python 3.11 or newer (this is {sys.version.split()[0]}). "
+             "Re-run the installer to set up a newer Python.")
 from functools import wraps
 
 from flask import (Flask, abort, jsonify, redirect, render_template, request,
@@ -138,7 +142,8 @@ def index_page():
         "cloud_active": cloud.active_providers(cfg),
         "user": session.get("user", ""),
     }
-    return render_template("PustakamIndex.html", boot=boot, user=session.get("user", ""))
+    return render_template("PustakamIndex.html", boot=boot, user=session.get("user", ""),
+                           platform=auth.platform_label())
 
 
 @app.route("/settings")

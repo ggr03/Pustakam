@@ -123,8 +123,11 @@
 
     // ================================================================ note list
     function plainPreview(md) {
-        return (md || '').replace(/```[\s\S]*?```/g, ' ').replace(/\$\$?|\\ce\{|\\[a-z]+/g, '')
-            .replace(/[#>*_`~\[\]()|-]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 110);
+        return (md || '').replace(/```[\s\S]*?```/g, ' ')
+            .replace(/\\(?:ce|pu|mathrm|text|mathbf|operatorname)\{([^{}]*)\}/g, '$1')   // \ce{H2O} -> H2O
+            .replace(/\\[a-zA-Z]+/g, ' ').replace(/\\./g, ' ')                       // other TeX commands
+            .replace(/[{}$^]/g, '').replace(/[#>*_`~\[\]()|]+/g, ' ')
+            .replace(/\s+/g, ' ').trim().slice(0, 110);
     }
 
     async function loadNotes() {
@@ -323,6 +326,8 @@
     function setStatus(msg, kind = 'idle') {
         $('sync-status').textContent = msg;
         $('sync-dot').className = `sync-dot ${kind}`;
+        $('acct-dot').className = `sync-dot ${kind}`;          // mirrored on the account button
+        $('acct-btn').title = `${msg} (click for sync, settings and logout)`;
     }
 
     async function syncNow() {
@@ -347,7 +352,10 @@
                 if (st.downloaded || st.deleted_local || st.folders || st.conflicts) changed = true;
             }
             if (failed.length) { setStatus(failed.join(' · '), 'error'); P.toast(failed[0], 'error'); }
-            else setStatus(`Synced ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} — ${parts.join(' · ')}`, 'ok');
+            else {
+                setStatus(`Synced ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} — ${parts.join(' · ')}`, 'ok');
+                P.toast(`⟳ ${parts.join(' · ')}`, 'ok');
+            }
             if (changed) {
                 await refreshSidebar(); await loadNotes();
                 if (S.note && !S.dirty) {

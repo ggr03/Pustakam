@@ -49,14 +49,14 @@ Write-Host '=================================================='
 Write-Host "   Pustakam (पुस्तकम्) installer  v$Version"
 Write-Host '=================================================='
 
-# ------------------------------------------------------------- Python 3.9+
+# ------------------------------------------------------------- Python 3.11+
 function Find-Python {
     $candidates = @(@('py', '-3'), @('python'), @('python3'))
     foreach ($c in $candidates) {
         $exe = $c[0]; $pre = @($c | Select-Object -Skip 1)
         if (-not (Get-Command $exe -ErrorAction SilentlyContinue)) { continue }
         try {
-            $path = & $exe @pre -c "import sys; print(sys.executable if sys.version_info >= (3,9) else '')" 2>$null
+            $path = & $exe @pre -c "import sys; print(sys.executable if sys.version_info >= (3,11) else '')" 2>$null
             if ($LASTEXITCODE -eq 0 -and $path -and (Test-Path $path) -and ($path -notmatch 'WindowsApps')) { return $path.Trim() }
         } catch { }
     }
@@ -65,13 +65,13 @@ function Find-Python {
 
 $Python = Find-Python
 if (-not $Python) {
-    Warn 'Python 3.9 or newer was not found.'
+    Warn 'Python 3.11 or newer was not found.'
     if ((Get-Command winget -ErrorAction SilentlyContinue) -and (Ask 'Install Python 3.12 with winget now?' 'y')) {
         winget install --id Python.Python.3.12 -e --scope user --accept-package-agreements --accept-source-agreements
         $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + [Environment]::GetEnvironmentVariable('Path', 'Machine')
         $Python = Find-Python
     }
-    if (-not $Python) { throw 'Please install Python 3.9+ from https://www.python.org/downloads/ (tick "Add python.exe to PATH") and run this again.' }
+    if (-not $Python) { throw 'Please install Python 3.11 or newer from https://www.python.org/downloads/ (tick "Add python.exe to PATH") and run this again.' }
 }
 Ok "Using Python: $Python"
 

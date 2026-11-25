@@ -119,9 +119,6 @@
             <span class="search-icon" aria-hidden="true">⌕</span>
             <input type="search" id="search-input" placeholder="Search notes…" autocomplete="off" enterkeyhint="search" aria-label="Search notes">
         </div>
-        <span class="user-chip" title="Signed in as {{ user }}">👤 <span class="user-name">{{ user }}</span></span>
-        <a href="/settings" class="btn btn-sm" title="Settings" aria-label="Settings">⚙️<span class="btn-label"> Settings</span></a>
-        <a href="/logout" class="btn btn-sm btn-danger" id="logout-btn" title="Log out" aria-label="Log out">⎋<span class="btn-label"> Logout</span></a>
     </div>
     <div class="sb-group sb-weather">
         <div class="wx-strip" id="wx-strip"></div>
@@ -136,14 +133,29 @@
             <span class="sb-date-day" id="sb-date-day"></span>
             <span class="sb-date-time" id="sb-date-time"></span>
         </div>
-        <span class="sb-sep"></span>
-        <div class="sync-state" id="sync-state">
-            <span class="sync-dot" id="sync-dot"></span>
-            <span id="sync-status">Ready</span>
+        <!-- Account menu: signed-in ID, sync status + Sync now, Settings, Logout -->
+        <div class="acct-wrap">
+            <button class="acct-btn" id="acct-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-menu"
+                    title="Signed in as {{ user }}: sync, settings and logout">
+                <span class="sync-dot" id="acct-dot" aria-hidden="true"></span>
+                <span class="acct-ico" aria-hidden="true">👤</span>
+                <span class="acct-name">{{ user }}</span>
+                <span class="acct-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="acct-menu" id="acct-menu" role="menu" aria-label="Account" hidden>
+                <div class="acct-head">
+                    <span class="acct-avatar" aria-hidden="true">{{ (user or '?')[:1]|upper }}</span>
+                    <div><b>{{ user }}</b><small>Signed in with {{ platform }} account</small></div>
+                </div>
+                <div class="acct-sync" id="sync-state" role="status" aria-live="polite">
+                    <span class="sync-dot" id="sync-dot"></span><span id="sync-status">Ready</span>
+                </div>
+                <button class="acct-item" id="sync-btn" role="menuitem"><span class="sync-ico">⟳</span> Sync now <kbd>OneDrive</kbd></button>
+                <a class="acct-item" href="/settings" role="menuitem"><span>⚙️</span> Settings</a>
+                <div class="acct-sep" role="separator"></div>
+                <a class="acct-item danger" href="/logout" id="logout-btn" role="menuitem"><span>⎋</span> Logout</a>
+            </div>
         </div>
-        <button class="btn btn-sm btn-sync" id="sync-btn" title="Sync with OneDrive">
-            <span class="sync-ico">⟳</span><span class="btn-label"> Sync</span>
-        </button>
         <span class="version-badge" title="Pustakam version">v{{ version }}</span>
     </div>
 </footer>

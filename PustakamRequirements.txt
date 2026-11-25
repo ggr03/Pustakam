@@ -1,3 +1,4 @@
+# Pustakam needs Python 3.11 or newer
 flask>=3.0
 requests>=2.31
 waitress>=3.0

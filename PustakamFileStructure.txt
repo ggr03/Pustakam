@@ -18,6 +18,7 @@ Pustakam/
 ├── README.md                   Documentation (name, features, install, sync, files)
 ├── LICENSE                     MIT License
 ├── PustakamFileStructure.txt   This file
+├── docs/screenshots/          README screenshots (PustakamReadView.png, PustakamEditLivePreview.png, …)
 ├── templates/
 │   ├── PustakamBase.html
 │   ├── PustakamLogin.html

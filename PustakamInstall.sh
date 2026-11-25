@@ -71,10 +71,10 @@ pkg_install() {
     esac
 }
 
-# ------------------------------------------------------------- python >= 3.9
+# ------------------------------------------------------------- python >= 3.11
 find_python() {
-    for c in python3.13 python3.12 python3.11 python3.10 python3.9 python3; do
-        if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if sys.version_info >= (3,9) else 1)' 2>/dev/null; then
+    for c in python3.14 python3.13 python3.12 python3.11 python3; do
+        if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)' 2>/dev/null; then
             echo "$c"; return 0
         fi
     done
@@ -82,17 +82,29 @@ find_python() {
 }
 PY="$(find_python || true)"
 if [[ -z "$PY" ]]; then
-    c_warn "Python 3.9 or newer was not found."
+    c_warn "Python 3.11 or newer was not found (have: $(python3 --version 2>/dev/null || echo none))."
+    # Step 1: the distro's default python3 (3.11+ on Debian 12+, Ubuntu 24.04+, Fedora, RHEL 10)
     case "$PKG" in
-        apt)    NEED=(python3 python3-venv python3-pip) ;;
-        dnf|yum) if [[ "$OS_ID $OS_LIKE" =~ (rhel|centos|rocky|almalinux) ]] && [[ "${VERSION_ID:-9}" == 8* ]]; then NEED=(python3.11 python3.11-pip); else NEED=(python3 python3-pip); fi ;;
-        zypper) NEED=(python311 python311-pip) ;;
-        *) NEED=(python3) ;;
+        apt)     NEED=(python3 python3-venv python3-pip) ;;
+        dnf|yum) NEED=(python3 python3-pip) ;;
+        zypper)  NEED=(python3 python3-pip) ;;
+        *)       NEED=(python3) ;;
     esac
-    ask "Install ${NEED[*]} now?" y || die "Python 3.9+ is required."
-    pkg_install "${NEED[@]}"
+    # Step 2: a side-by-side 3.11 package (Ubuntu 22.04, RHEL/Rocky/Alma 8-9, openSUSE Leap)
+    case "$PKG" in
+        apt)     NEED2=(python3.11 python3.11-venv) ;;
+        dnf|yum) NEED2=(python3.11 python3.11-pip) ;;
+        zypper)  NEED2=(python311 python311-pip) ;;
+        *)       NEED2=() ;;
+    esac
+    ask "Install Python 3.11+ now (${NEED[*]}, or ${NEED2[*]:-nothing else} if the default is older)?" y || die "Python 3.11+ is required."
+    pkg_install "${NEED[@]}" || true
     PY="$(find_python || true)"
-    [[ -z "$PY" ]] && die "Python 3.9+ still not found."
+    if [[ -z "$PY" && ${#NEED2[@]} -gt 0 ]]; then
+        pkg_install "${NEED2[@]}" || true
+        PY="$(find_python || true)"
+    fi
+    [[ -z "$PY" ]] && die "Python 3.11+ still not found. Install Python 3.11 or newer for your distribution, then run this again."
 fi
 c_ok "✔ Using $($PY --version) ($PY)"
 

@@ -248,7 +248,9 @@ const PustakamWeather = (() => {
             const pop = document.getElementById('wx-popover');
             if (!pop.hidden && !pop.contains(e.target)) closePopover();
         });
-        window.addEventListener('resize', closePopover);
+        // close only when the width changes: phone browsers fire 'resize' when the address bar hides
+        let lastW = window.innerWidth;
+        window.addEventListener('resize', () => { if (window.innerWidth !== lastW) { lastW = window.innerWidth; closePopover(); } });
     }
 
     return { init };

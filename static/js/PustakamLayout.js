@@ -82,7 +82,31 @@ const PustakamLayout = (() => {
         }, { passive: true });
     }
 
+    // ------------------------------------------------------------ account menu
+    function initAccountMenu() {
+        const btn = $('acct-btn'), menu = $('acct-menu');
+        const items = () => [...menu.querySelectorAll('[role=menuitem]')];
+        const setOpen = (on, focusFirst = false) => {
+            menu.hidden = !on;
+            btn.setAttribute('aria-expanded', String(on));
+            btn.classList.toggle('open', on);
+            if (on && focusFirst) items()[0]?.focus();
+        };
+        btn.addEventListener('click', e => { e.stopPropagation(); setOpen(menu.hidden, e.detail === 0); });
+        document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target)) setOpen(false); });
+        menu.addEventListener('keydown', e => {
+            const list = items(), i = list.indexOf(document.activeElement);
+            if (e.key === 'ArrowDown') { e.preventDefault(); list[(i + 1) % list.length].focus(); }
+            if (e.key === 'ArrowUp') { e.preventDefault(); list[(i - 1 + list.length) % list.length].focus(); }
+            if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); btn.focus(); }
+        });
+        $('sync-btn').addEventListener('click', () => setOpen(false));
+        let lastW = window.innerWidth;   // ignore height-only resizes (mobile address bar)
+        window.addEventListener('resize', () => { if (window.innerWidth !== lastW) { lastW = window.innerWidth; setOpen(false); } });
+    }
+
     function init() {
+        initAccountMenu();
         $('sidebar-collapse').addEventListener('click', () => setCollapsed(!body.classList.contains('sidebar-collapsed')));
         $('m-toggle-folders').addEventListener('click', () => toggle('folders'));
         $('m-toggle-notes').addEventListener('click', () => toggle('notes'));

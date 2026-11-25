@@ -30,7 +30,42 @@ decades as plain `.md` files, and kept safe on your own computer, in your OneDri
 * **Use it anywhere at home.** Open it from phones, tablets and other computers on your LAN, with a mobile-friendly layout.
 * **Cross-platform installers.** Debian/Ubuntu/MX, Fedora/RHEL/Rocky/Alma, openSUSE and Windows 10/11.
 
-**Version:** `2026-11-24-01` (successor of NoteVault)
+**Version:** `2026-11-24-01` (successor of NoteVault) · **Requires:** Python 3.11+
+
+---
+
+## 📸 Screenshots
+
+### Reading view
+Notes open read-only, nicely typeset, with math and chemistry rendered.
+
+![Reading view: notebooks, note list and a rendered note with chemistry and math](docs/screenshots/PustakamReadView.png)
+
+### Edit mode with live preview
+Press **✏️ Edit**: Markdown on the left, live preview on the right, with a toolbar for formatting, math (`∑`) and chemistry (`⚗`).
+
+![Edit mode: Markdown source on the left, live preview with formulas on the right](docs/screenshots/PustakamEditLivePreview.png)
+
+### The status bar
+
+![Status bar: search, weather for three cities, add city, date, account button and version](docs/screenshots/PustakamStatusBar.png)
+
+<table>
+<tr>
+<td width="50%"><b>Weather</b>: click a city for its local time, feels-like, humidity, wind, air quality and UV.<br><br>
+<img src="docs/screenshots/PustakamWeather.png" alt="Weather details popup for Pune"></td>
+<td width="50%"><b>Account menu</b>: who is signed in, sync status, <b>Sync now</b>, <b>Settings</b> and <b>Logout</b>.<br><br>
+<img src="docs/screenshots/PustakamAccountMenu.png" alt="Account menu opened from the status bar"></td>
+</tr>
+<tr>
+<td width="50%"><b>Search</b>: type in the bottom-left box. Matching notes from every notebook appear at once.<br><br>
+<img src="docs/screenshots/PustakamSearch.png" alt="Searching for 'acid' shows the matching note"></td>
+<td width="50%"><b>On a phone</b>: the note gets the whole screen; 📚 and ☰ slide in the notebooks and notes.<br><br>
+<img src="docs/screenshots/PustakamMobile.png" alt="Pustakam on a phone" width="300"></td>
+</tr>
+</table>
+
+*(Screenshots use sample notes and a demo account.)*
 
 ---
 
@@ -44,12 +79,55 @@ decades as plain `.md` files, and kept safe on your own computer, in your OneDri
 | ∑ **Math** | KaTeX: `$E=mc^2$`, `$$\int_0^1 x^2\,dx$$`, `\( … \)`, `\[ … \]`. |
 | ⚗️ **Chemistry** | mhchem: `$\ce{H2SO4}$`, `$\ce{N2 + 3H2 <=> 2NH3}$`, or a bare `\ce{CO2}` anywhere in text. Units: `\pu{9.81 m/s^2}`. |
 | ☁️ **OneDrive sync** | Two-way. Sign in with your outlook.com / hotmail.com / msn.com account, no app setup. Files you add to the OneDrive folder from the web or your phone become notes here. |
-| 🌦️ **Status bar** | Sync status, weather for your cities (°C and °F plus a short description; click a city for feels-like, humidity, wind, AQI and UV), today's date in ISO format (`2026-11-24`) and the **Sync** button. |
-| 🔐 **OS sign-in** | Linux: PAM (your Linux password). Windows: your Windows password. Logs you out after inactivity. **Logout** button. |
+| 🧭 **Status bar** | Note search, weather for your cities, today's date in ISO format (`2026-11-24`), the **account menu** (sync, settings, logout) and the version. See [Using the status bar](#-using-the-status-bar). |
+| 🔐 **OS sign-in** | Linux: PAM (your Linux password). Windows: your Windows password. Logs you out after inactivity. **Logout** is in the account menu. |
 | 🔎 **Search & tags** | Full-text search (SQLite FTS5) and tag filtering. |
 | 💾 **Local backup** | Daily at 21:00 to any folder you choose (second disk, USB drive, NAS), plus **Back up now** in Settings. The last 5 (configurable) are kept as `.zip` files holding the database and a Markdown copy of every note. |
 
 Keyboard: `Alt+N` new note · `E` edit · `Ctrl+S` save · `Ctrl+Enter` save and read · `Esc` back to reading.
+
+---
+
+## 🧭 Using the status bar
+
+The bar along the bottom of the window holds everything that isn't part of a note, from left to right:
+
+| Part | What it does |
+|---|---|
+| ⌕ **Search notes…** | Full-text search across **all** notebooks (see below). |
+| 🌦️ **Weather chips** | One chip per city: icon, °C and °F, and a short description such as *Clear sky*. Click a chip for details; drag chips to reorder them. |
+| 🌍 **Add city…** | Adds a city to the weather chips (see below). |
+| **2026-11-24** | Today's date in ISO 8601 format (year-month-day), with the time underneath on wide screens. |
+| ● 👤 **your-name ▾** | The **account button**. The dot shows sync state: 🟢 synced/OK, 🟣 pulsing = syncing, 🟡 warning, 🔴 error, ⚪ not connected. Click it for the **account menu**. |
+| **v2026-11-24-01** | The Pustakam version you are running. |
+
+**Account menu** (click your name):
+* **Signed in as …**: the Linux or Windows account you signed in with.
+* **Sync status**: the result of the last OneDrive sync, e.g. *Synced 21:15 — OneDrive ↑2 ↓1*. ↑ means uploaded and ↓ means downloaded.
+* **⟳ Sync now**: sync with OneDrive immediately. Automatic sync also runs every 10 minutes.
+* **⚙️ Settings**: OneDrive, local backup, logs, default notebook, server/LAN options.
+* **⎋ Logout**: sign out. You are also logged out automatically after inactivity (15 minutes by default).
+
+Keyboard users: focus the account button and press `Enter`, use `↑`/`↓` to move through the menu, and `Esc` to close it.
+
+### 🔎 Searching your notes
+
+1. Click **Search notes…** at the bottom left (on a phone, tap it and the notes list slides in).
+2. Start typing. Results update as you type and include note titles **and** text from every notebook. The list header changes to *Search: …*.
+3. Each word matches the start of words, so `chem` finds *chemistry* and *chemical*. Several words must **all** appear: `acid table` finds notes containing both.
+4. Click a result to open it. To leave search, clear the box (the ✕ in the box, in most browsers) or click any notebook.
+
+Tip: click a **#tag** under *Tags* (or on an open note) to list every note with that tag.
+
+### 🌍 Adding weather for a city
+
+1. Click **🌍 Add city…** in the status bar and type at least two letters of a city, e.g. `Pune` or `Toronto`.
+2. Pick the right place from the suggestions; they show the region and country, so *Portland, Oregon* and *Portland, Maine* are easy to tell apart. It's added as a chip straight away.
+3. **Click a chip** to see local date and time, feels-like temperature, today's high/low, humidity, wind (mph and km/h), air quality (US AQI, colour-coded) and UV index.
+4. **Drag chips** to reorder them. To **remove** a city, open its chip and click **✕**.
+
+Up to 12 cities can be shown. They are saved on the server, so they appear in every browser you sign in from.
+Weather comes from [Open-Meteo](https://open-meteo.com) (free, no API key) and refreshes every 15 minutes.
 
 ---
 
@@ -64,7 +142,8 @@ cd Pustakam
 ```
 
 The installer:
-* finds Python 3.9+ (and installs `python3`, `python3-venv`/`python3-pip` with apt, dnf, yum or zypper if they are missing),
+* finds **Python 3.11+**; if missing it installs it with apt, dnf, yum or zypper (the distro's `python3`, or the side-by-side
+  `python3.11` package on Ubuntu 22.04, RHEL/Rocky/Alma 8–9 and openSUSE Leap),
 * installs into `~/.local/share/pustakam` with a private Python environment,
 * offers to **copy your NoteVault notes** and to stop the old NoteVault service (same port 5150),
 * creates a **systemd user service** `pustakam` plus a daily backup timer, and enables lingering so it runs at boot.
@@ -88,7 +167,7 @@ Download or clone the repository, then in PowerShell, from the `Pustakam` folder
 powershell -ExecutionPolicy Bypass -File .\PustakamInstall.ps1
 ```
 
-* Finds Python 3.9+ (offers `winget install Python.Python.3.12` if missing).
+* Finds **Python 3.11+** (offers `winget install Python.Python.3.12` if missing).
 * Installs into `%LOCALAPPDATA%\Pustakam`, data in `%USERPROFILE%\.pustakam`.
 * Registers a hidden **Task Scheduler** task `Pustakam` that starts when you log on
   (`-RunAtStartup` starts it at boot, before log-on; Windows asks for your password once).
@@ -154,22 +233,61 @@ and sign in with the same Linux/Windows account. If a firewall is on, the instal
 
 ---
 
-## 📁 Files
+## 📁 Where things are stored
 
-| Path | What |
+Your **notes and settings** live in a `.pustakam` folder in your home folder; the **program** is installed separately,
+so reinstalling or upgrading never touches your notes.
+
+### 🐧 Linux
+
+| What | Location |
 |---|---|
-| `~/.pustakam/pustakam.db` | SQLite database (notes, notebooks, tags, sync state) |
-| `~/.pustakam/notes/` | Markdown copy of every note |
-| `~/.pustakam/config.json` | Settings (chmod 600 on Linux) |
-| `~/.pustakam/rclone.conf` | OneDrive sign-in for rclone (chmod 600) |
-| `~/.pustakam/backups/` (default; change in Settings → Local backup) | `pustakam-backup-1.zip` (newest) … `-5.zip`. To restore, stop Pustakam and unzip `pustakam.db` into `~/.pustakam/` |
-| `~/.pustakam/Logs/` | `connection.log` (sign-ins, OneDrive connect/test), `sync.log` (every sync action), `notes.log` (note/notebook created, edited, moved, deleted: titles only), `backup.log`. 2 MB each, 5 rotations. Viewable in Settings → Logs |
+| Notes database (notes, notebooks, tags, sync state) | `~/.pustakam/pustakam.db` |
+| Markdown copy of every note | `~/.pustakam/notes/` |
+| Settings | `~/.pustakam/config.json` (chmod 600) |
+| OneDrive sign-in (rclone) | `~/.pustakam/rclone.conf` (chmod 600) |
+| Local backups (default; change in Settings) | `~/.pustakam/backups/pustakam-backup-1.zip` (newest) … `-5.zip` |
+| Logs | `~/.pustakam/Logs/` with `connection.log`, `sync.log`, `notes.log`, `backup.log` |
+| Program | `~/.local/share/pustakam/app/` |
+| Python environment | `~/.local/share/pustakam/venv/` |
+| rclone (for OneDrive) | `~/.local/share/pustakam/bin/rclone` (or the system `rclone`) |
+| Background service | `~/.config/systemd/user/pustakam.service` |
+| Daily backup timer (21:00) | `~/.config/systemd/user/pustakam-backup.timer` (+ `.service`) |
+| Apps-menu launcher | `~/.local/share/applications/pustakam.desktop` |
+| Uninstaller | `~/.local/share/pustakam/PustakamUninstall.sh` |
+
+### 🪟 Windows
+
+| What | Location |
+|---|---|
+| Notes database (notes, notebooks, tags, sync state) | `%USERPROFILE%\.pustakam\pustakam.db` (e.g. `C:\Users\you\.pustakam\…`) |
+| Markdown copy of every note | `%USERPROFILE%\.pustakam\notes\` |
+| Settings | `%USERPROFILE%\.pustakam\config.json` |
+| OneDrive sign-in (rclone) | `%USERPROFILE%\.pustakam\rclone.conf` |
+| Local backups (default; change in Settings) | `%USERPROFILE%\.pustakam\backups\pustakam-backup-1.zip` (newest) … `-5.zip` |
+| Logs | `%USERPROFILE%\.pustakam\Logs\` with `connection.log`, `sync.log`, `notes.log`, `backup.log`, `server.log` |
+| Program | `%LOCALAPPDATA%\Pustakam\app\` (e.g. `C:\Users\you\AppData\Local\Pustakam\app\`) |
+| Python environment | `%LOCALAPPDATA%\Pustakam\venv\` |
+| rclone (for OneDrive) | `%LOCALAPPDATA%\Pustakam\bin\rclone.exe` (or a system `rclone`) |
+| Background service | Task Scheduler task **`Pustakam`** (runs `pythonw.exe PustakamApp.py` at log-on, or at start-up with `-RunAtStartup`) |
+| Daily backup (21:00) | Task Scheduler task **`Pustakam Backup`** |
+| Start-menu shortcut | `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Pustakam.url` |
+| Firewall rule (optional) | Windows Defender Firewall rule **`Pustakam`** (TCP 5150, private networks) |
+| Uninstaller | `%LOCALAPPDATA%\Pustakam\PustakamUninstall.ps1` |
+
+### Logs and backups
+
+* **Logs:** `connection.log` records sign-ins and OneDrive connect/tests. `sync.log` records every sync action. `notes.log`
+  records every note or notebook created, edited, moved or deleted (titles only, never note text). `backup.log` records backups.
+  Each is capped at 2 MB with 5 rotations, and you can read them in **Settings → 📜 Logs**.
+* **Restore a backup:** stop Pustakam (`systemctl --user stop pustakam`, or `Stop-ScheduledTask Pustakam` on Windows),
+  unzip `pustakam.db` from the backup into the `.pustakam` folder, then start it again.
 
 See [`PustakamFileStructure.txt`](PustakamFileStructure.txt) for the source layout.
 
 ## 🧰 Requirements
 
-Python 3.9+, `flask`, `requests`, `waitress`, and `python-pam` (Linux only); see `PustakamRequirements.txt`. rclone 1.58+ for OneDrive (installed by the installers via `PustakamGetRclone.py`).
+**Python 3.11 or newer**, `flask`, `requests`, `waitress`, and `python-pam` (Linux only); see `PustakamRequirements.txt`. rclone 1.58+ for OneDrive (installed by the installers via `PustakamGetRclone.py`).
 The editor loads marked, DOMPurify, KaTeX (+ mhchem) and highlight.js from the jsDelivr CDN, and weather
 comes from [Open-Meteo](https://open-meteo.com) (no API key). Both need internet access. Notes work offline.
 

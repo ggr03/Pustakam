@@ -640,3 +640,48 @@ body.sidebar-collapsed .folder-item.active { background: transparent; }
     color: var(--text-secondary); white-space: pre-wrap; word-break: break-word;
 }
 .logs-card code { word-break: break-all; }
+
+/* ----------------------------------------------------------- account menu (status bar) */
+.acct-wrap { position: relative; flex: none; }
+.acct-btn {
+    display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px 0 9px; border-radius: 15px;
+    border: 1px solid var(--accent-dim); background: var(--accent-soft); color: var(--text-primary);
+    font: 12.5px var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    transition: background .15s, border-color .15s;
+}
+.acct-btn:hover, .acct-btn.open { background: var(--accent-dim); border-color: var(--accent); }
+.acct-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.acct-caret { font-size: 10px; opacity: .8; transition: transform .2s; }
+.acct-btn.open .acct-caret { transform: rotate(180deg); }
+.acct-menu {
+    position: absolute; right: 0; bottom: calc(100% + 10px); z-index: 70; width: 270px; padding: 6px;
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
+    animation: pop .14s ease-out;
+}
+.acct-head { display: flex; align-items: center; gap: 10px; padding: 8px 8px 10px; border-bottom: 1px solid var(--border); }
+.acct-head b { display: block; font-size: 14px; color: var(--text-primary); }
+.acct-head small { color: var(--text-muted); font-size: 11px; }
+.acct-avatar {
+    width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex: none;
+    background: linear-gradient(135deg, var(--accent), var(--gold)); color: #fff; font-weight: 800; font-size: 15px;
+}
+.acct-sync { display: flex; align-items: flex-start; gap: 8px; padding: 9px 10px; margin: 6px 0 4px; font-size: 12px;
+    color: var(--text-secondary); background: var(--bg-primary); border-radius: 8px; line-height: 1.4; }
+.acct-sync .sync-dot { margin-top: 4px; }
+.acct-item {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: none; border-radius: 8px;
+    background: none; color: var(--text-primary); font: 13px var(--font); text-decoration: none; cursor: pointer; text-align: left;
+}
+.acct-item:hover, .acct-item:focus-visible { background: var(--accent-soft); outline: none; }
+.acct-item kbd { margin-left: auto; font: 10px var(--font); color: var(--text-muted); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; }
+.acct-item.danger { color: #ff8a8a; }
+.acct-item.danger:hover, .acct-item.danger:focus-visible { background: rgba(224, 85, 85, .15); }
+.acct-item.spinning .sync-ico { display: inline-block; animation: spin .9s linear infinite; }
+.acct-sep { height: 1px; background: var(--border); margin: 4px 2px; }
+@media (max-width: 1000px) { .acct-name { max-width: 90px; } }
+@media (max-width: 760px) {
+    .acct-btn { height: 34px; padding: 0 9px; }
+    .acct-name { display: none; }
+    .acct-menu { width: min(270px, calc(100vw - 24px)); }
+    .acct-item { padding: 12px 10px; font-size: 15px; }
+}
